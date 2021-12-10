@@ -1,0 +1,150 @@
+library(tercen)
+library(dplyr)
+library(tidyr)
+#library(flowCore)
+#library(FlowSOM)
+library(MEM)
+library(tictoc)
+
+options("tercen.workflowId" = "f119a84e79d66805c986d2fe4c0a1164")
+options("tercen.stepId"     = "95157069-f197-4a65-be15-5937b40b137a")
+
+do.mem <- function(df) {
+  data<-pivot_wider(df,names_from = .ri, values_from = .y)
+  data <- data[,-1]
+  colnames(data)[1] <- "cluster"
+  cluster<-data[,1]
+  data <- data[, c(seq_along(colnames(data))[-1], 1)] #cluster must be last column for MEM...
+  data<-as.matrix(data)
+  
+  MEM.values.uf_wf = MEM(
+    data,
+    #dat@exprs,
+    transform = FALSE,
+    cofactor = 0,
+    choose.markers = FALSE,
+    markers = "all",
+    choose.ref = FALSE,
+    zero.ref = FALSE,
+    rename.markers = FALSE,
+    new.marker.names = "none",
+    file.is.clust = FALSE,
+    add.fileID = FALSE,
+    IQR.thresh = NULL
+  )
+  
+  MEM.matrix_wf <- data.frame(MEM.values.uf_wf[[5]][[1]])
+  MEM.matrix_wf$.ci <- c(1:nrow(MEM.matrix_wf))-1L
+  
+  out<-pivot_longer(MEM.matrix_wf,cols =c(colnames(MEM.matrix_wf),-.ci), names_to = ".ri", values_to = "mem")
+  out$.ri <- as.integer(gsub("X", "", out$.ri))
+  return(out)
+}
+
+
+
+ctx <- tercenCtx()
+
+###########
+script_name <- ifelse(
+  is.null(ctx$op.value("file_name")),
+  "script.R",
+  ctx$op.value("file_name")
+)
+
+file_list <- ctx$client$projectDocumentService$findFileByLastModifiedDate(limit = 1000, descending = TRUE)
+names_list <- unlist(lapply(file_list, function(x) x$name))
+script_id <- which(names_list == script_name)
+if(!length(script_id)) stop("Script not found, check file name.")
+
+bytes <- ctx$client$fileService$download(file_list[[script_id[1]]]$id)
+script <- rawToChar(bytes)
+eval(parse(text = script))
+############
+
+mem_matrix<-ctx %>% 
+  select(.xLevels,.ci, .ri, .y)%>% 
+  do(do.mem(.)) %>%
+  ctx$addNamespace()
+
+
+tbl_pop<-read.csv2(file="table_pop.csv", header = TRUE, sep = ",", row.names = 1)
+channel_list<-ctx$rselect()
+data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = d1.2.0.mem)
+colnames(data_mem)[-1]<-channel_list$channel
+colnames(data_mem)[-1]<-c("HLADR","pERK1","CD3","Perf","CD38","IFNg","CD4","CD8")
+
+out.mat<-matrix(, nrow = 0, ncol = 2)
+for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
+  label<-data_mem[[".ci"]][cluster.nb]
+  population<-""
+  for (cname in colnames(data_mem)[-1]){
+  #threshold <- median(data_mem[[cname]])
+  threshold <-0
+  if (data_mem[cluster.nb,cname]<threshold){
+    population<-paste(population,cname,"-",sep="")
+  }
+  else{
+    population<-paste(population,cname,"+",sep="")
+  }
+  }
+  res<-cbind(label,population)
+  out.mat<-rbind(out.mat,res)
+}
+
+
+###
+find.match<- function(cluster_pop,tbl_pop){
+  population.list<-c()
+  
+  for (i in c(1:length(rownames(tbl_pop)))){
+    pop.name<-rownames(tbl_pop)[i]
+    marker.list<-c()
+    
+    for (y in c(1:length((tbl_pop[i,])))){
+      if (tbl_pop[i,y] == 1){
+        marker<- paste(colnames(tbl_pop)[y],"+",sep="")
+      } else if(tbl_pop[i,y] == -1){
+        marker<- paste(colnames(tbl_pop)[y],"-",sep="")
+      } else{
+        marker<-""
+      }
+      marker.list<-append(marker.list,marker)
+    }
+    
+    unmatch<-FALSE
+    for(element in marker.list){
+    match<-grepl(element, cluster_pop["population"],fixed = TRUE)
+      if(!match){
+        #print("unmatch")
+        unmatch<-TRUE
+        break
+      }
+    }
+    
+    if (!unmatch){
+      population.list<-append(population.list,pop.name)
+    }
+  }
+  return(population.list)
+}
+
+output<-matrix(, nrow = 0, ncol = 2)
+for (row.nb in c(1:length(out.mat[,1]))){
+  result<-find.match(out.mat[row.nb,],tbl_pop)
+  for (res.pop in result){
+    new.row<-cbind(as.numeric(row.nb),res.pop)
+    output<-rbind(output,new.row)
+  }
+  if(is.null(result)){
+    new.row<-cbind(as.numeric(row.nb),"Unknown")
+    output<-rbind(output,new.row)
+  }
+}
+colnames(output)<-c("cluster","population")
+
+output%>%
+  as.data.frame() %>%
+  ctx$addNamespace() %>%
+  ctx$save()
+

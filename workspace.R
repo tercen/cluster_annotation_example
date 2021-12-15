@@ -3,11 +3,12 @@ library(dplyr)
 library(tidyr)
 #library(flowCore)
 #library(FlowSOM)
-library(MEM)
-library(tictoc)
+#library(MEM)
+#library(tictoc)
 
 options("tercen.workflowId" = "f119a84e79d66805c986d2fe4c0a1164")
-options("tercen.stepId"     = "95157069-f197-4a65-be15-5937b40b137a")
+options("tercen.stepId"     = "3bbf5208-96b4-424c-9813-186d144e6624")
+#options("tercen.stepId"     = "95157069-f197-4a65-be15-5937b40b137a")
 
 do.mem <- function(df) {
   data<-pivot_wider(df,names_from = .ri, values_from = .y)
@@ -63,14 +64,12 @@ eval(parse(text = script))
 ############
 
 mem_matrix<-ctx %>% 
-  select(.xLevels,.ci, .ri, .y)%>% 
-  do(do.mem(.)) %>%
-  ctx$addNamespace()
+  select(.ci, .ri, .y)
 
 
 tbl_pop<-read.csv2(file="table_pop.csv", header = TRUE, sep = ",", row.names = 1)
 channel_list<-ctx$rselect()
-data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = d1.2.0.mem)
+data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
 colnames(data_mem)[-1]<-channel_list$channel
 colnames(data_mem)[-1]<-c("HLADR","pERK1","CD3","Perf","CD38","IFNg","CD4","CD8")
 
@@ -141,10 +140,11 @@ for (row.nb in c(1:length(out.mat[,1]))){
     output<-rbind(output,new.row)
   }
 }
-colnames(output)<-c("cluster","population")
+colnames(output)<-c(".ci","population")
 
 output%>%
-  as.data.frame() %>%
+  as_tibble()%>% 
+  mutate(.ci = as.integer(as.integer(.ci)-1)) %>%
   ctx$addNamespace() %>%
   ctx$save()
 

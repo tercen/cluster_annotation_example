@@ -4,14 +4,7 @@
   "tags": ["basic statistics"],
   "authors": ["tercen"],
   "urls": ["https://github.com/tercen/template_R_operator"],
-  "properties": [
-    {
-    "kind": "StringProperty",
-    "name": "file_name",
-    "defaultValue": "cluster_annotation.tsv",
-    "description": "File name for the custom script."
-    }
-  ]
+  "properties": []
 }
 
 

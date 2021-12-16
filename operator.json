@@ -4,5 +4,12 @@
   "tags": ["basic statistics"],
   "authors": ["tercen"],
   "urls": ["https://github.com/tercen/template_R_operator"],
-  "properties": []
+  "properties": [
+   {
+    "kind": "StringProperty",
+    "name": "file_name",
+    "defaultValue": "script.R",
+    "description": "File name for the custom script."
+    }
+  ]
 }

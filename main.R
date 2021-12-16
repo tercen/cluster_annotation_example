@@ -44,15 +44,14 @@ ctx <- tercenCtx()
 
 ###########
 script_name <- ifelse(
-  is.null(ctx$op.value("file_name")),
-  "script.R",
+  is.null(ctx$op.value("file_name")), "script.R",
   ctx$op.value("file_name")
 )
 
 file_list <- ctx$client$projectDocumentService$findFileByLastModifiedDate(limit = 1000, descending = TRUE)
 names_list <- unlist(lapply(file_list, function(x) x$name))
 script_id <- which(names_list == script_name)
-if(!length(script_id)) stop("Script not found, check file name.")
+if(!length(script_id)) stop("File not found, check file name.")
 
 bytes <- ctx$client$fileService$download(file_list[[script_id[1]]]$id)
 script <- rawToChar(bytes)

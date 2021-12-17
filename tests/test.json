@@ -1,13 +1,13 @@
 {
   "kind": "OperatorUnitTest",
   "name": "test",
-  "namespace": "ds0",
-  "inputDataUri": "crabs-long.csv",
-  "outputDataUri": ["table1.csv","table2.csv","table3.csv"],
-  "columns": ["sex"],
-  "rows": ["variable"],
+  "namespace": "ph0",
+  "inputDataUri": "MEM_table.csv",
+  "outputDataUri": ["table1.csv"],
+  "columns": ["ds21.cluster_id"],
+  "rows": ["channel"],
   "colors": [],
   "labels": [],
-  "yAxis": "measurement",
+  "yAxis": "2.0.mem",
   "xAxis": ""
 }

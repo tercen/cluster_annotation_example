@@ -9,6 +9,7 @@ library(tidyr)
 options("tercen.workflowId" = "f119a84e79d66805c986d2fe4c0a1164")
 options("tercen.stepId"     = "3bbf5208-96b4-424c-9813-186d144e6624")
 #options("tercen.stepId"     = "95157069-f197-4a65-be15-5937b40b137a")
+options("tercen.stepId"     = "7df2d0f2-63fc-4230-9fa8-53ee2ebaed8d")
 
 ctx <- tercenCtx()
 
@@ -32,8 +33,7 @@ eval(parse(text = script))
 mem_matrix<-ctx %>% 
   select(.ci, .ri, .y)
 
-
-tbl_pop<-read.csv2(file="table_pop.csv", header = TRUE, sep = ",", row.names = 1)
+tbl_pop<-read.csv2(file=script_name, header = TRUE, sep = ",", row.names = 1)
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
 colnames(data_mem)[-1]<-channel_list$channel

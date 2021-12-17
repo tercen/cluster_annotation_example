@@ -61,7 +61,7 @@ eval(parse(text = script))
 mem_matrix<-ctx %>% 
   select(.ci, .ri, .y)
 
-tbl_pop<-read.csv2(file="table_pop.csv", header = TRUE, sep = ",", row.names = 1)
+tbl_pop<-read.csv2(file=script_name, header = TRUE, sep = ",", row.names = 1)
 
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)

@@ -8,7 +8,7 @@
    {
     "kind": "StringProperty",
     "name": "file_name",
-    "defaultValue": "script.R",
+    "defaultValue": "table.csv",
     "description": "File name for the custom script."
     }
   ]

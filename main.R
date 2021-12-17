@@ -55,7 +55,7 @@ if(!length(script_id)) stop("File not found, check file name.")
 
 bytes <- ctx$client$fileService$download(file_list[[script_id[1]]]$id)
 script <- rawToChar(bytes)
-eval(parse(text = script))
+#eval(parse(text = script))
 ############
 
 mem_matrix<-ctx %>% 

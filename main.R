@@ -65,7 +65,7 @@ tbl_pop<-read.csv2(file=script_name, header = TRUE, sep = ",", row.names = 1)
 
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
-colnames(data_mem)[-1]<-channel_list$channel
+colnames(data_mem)[-1]<-channel_list[[1]]
 
 out.mat<-matrix(, nrow = 0, ncol = 2)
 for (cluster.nb in c(1:length(data_mem[[".ci"]]))){

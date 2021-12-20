@@ -36,7 +36,7 @@ mem_matrix<-ctx %>%
 tbl_pop<-read.csv2(file=script_name, header = TRUE, sep = ",", row.names = 1)
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
-colnames(data_mem)[-1]<-channel_list$channel
+colnames(data_mem)[-1]<-channel_list[[1]]
 colnames(data_mem)[-1]<-c("HLADR","pERK1","CD3","Perf","CD38","IFNg","CD4","CD8")
 
 out.mat<-matrix(, nrow = 0, ncol = 2)

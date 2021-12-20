@@ -1,15 +1,15 @@
 {
-  "name": "phenotype_identifier_operator",
+  "name": "cluster_annotation_operator",
   "description": ".",
   "tags": ["basic statistics"],
   "authors": ["tercen"],
-  "urls": ["https://github.com/tercen/phenotype_identifier_operator"],
+  "urls": ["https://github.com/tercen/cluster_annotation_operator"],
   "properties": [
    {
     "kind": "StringProperty",
     "name": "file_name",
     "defaultValue": "table.csv",
-    "description": "File name for the custom script."
+    "description": "File name of the population annotation."
     }
   ]
 }

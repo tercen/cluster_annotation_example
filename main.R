@@ -39,33 +39,27 @@ find.match<- function(cluster_pop,tbl_pop){
 }
 ###
 
-
 ctx <- tercenCtx()
 
-###########
-script_name <- ifelse(
-  is.null(ctx$op.value("file_name")), "script.R",
-  ctx$op.value("file_name")
-)
+### Extract the population table with the documentId
+doc.id.tmp<-as_tibble(ctx$select())
+doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
 
-file_list <- ctx$client$projectDocumentService$findFileByLastModifiedDate(limit = 1000, descending = TRUE)
-names_list <- unlist(lapply(file_list, function(x) x$name))
-script_id <- which(names_list == script_name)
-if(!length(script_id)) stop("File not found, check file name.")
+table.pop<-ctx$client$tableSchemaService$select(doc.id)
 
-bytes <- ctx$client$fileService$download(file_list[[script_id[1]]]$id)
-script <- rawToChar(bytes)
-#eval(parse(text = script))
-############
+tbl_pop<-as_tibble(table.pop)
+Population = tbl_pop$Population
+tbl_pop %<>% select(-Population) %>% as.matrix
+rownames(tbl_pop) = Population
+###
 
 mem_matrix<-ctx %>% 
   select(.ci, .ri, .y)
 
-tbl_pop<-read.csv2(file=script_name, header = TRUE, sep = ",", row.names = 1)
-
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
 colnames(data_mem)[-1]<-channel_list[[1]]
+colnames(data_mem)[-1]<-c("HLADR","pERK1","CD3","Perf","CD38","IFNg","CD4","CD8")
 
 out.mat<-matrix(, nrow = 0, ncol = 2)
 for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
@@ -84,10 +78,6 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   res<-cbind(label,population)
   out.mat<-rbind(out.mat,res)
 }
-
-
-###
-
 
 output<-matrix(, nrow = 0, ncol = 2)
 for (row.nb in c(1:length(out.mat[,1]))){

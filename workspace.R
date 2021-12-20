@@ -7,33 +7,31 @@ library(tidyr)
 #library(tictoc)
 
 options("tercen.workflowId" = "f119a84e79d66805c986d2fe4c0a1164")
-options("tercen.stepId"     = "3bbf5208-96b4-424c-9813-186d144e6624")
-#options("tercen.stepId"     = "95157069-f197-4a65-be15-5937b40b137a")
-options("tercen.stepId"     = "7df2d0f2-63fc-4230-9fa8-53ee2ebaed8d")
+options("tercen.workflowId" = "9af47f50c3160717a5378977da00e254")
+
+#options("tercen.stepId"     = "3bbf5208-96b4-424c-9813-186d144e6624")
+options("tercen.stepId"     = "5ae79b70-5195-4578-8439-eaf21b9a250b")
+#options("tercen.stepId"     = "7df2d0f2-63fc-4230-9fa8-53ee2ebaed8d")
 
 ctx <- tercenCtx()
 
-###########
-script_name <- ifelse(
-  is.null(ctx$op.value("file_name")),
-  "script.R",
-  ctx$op.value("file_name")
-)
+### Extract the population table with the documentId
+#doc.id<-ctx$select("js1.documentId")[[1]][1]
 
-file_list <- ctx$client$projectDocumentService$findFileByLastModifiedDate(limit = 1000, descending = TRUE)
-names_list <- unlist(lapply(file_list, function(x) x$name))
-script_id <- which(names_list == script_name)
-if(!length(script_id)) stop("Script not found, check file name.")
+doc.id.tmp<-as_tibble(ctx$select())
+doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
 
-bytes <- ctx$client$fileService$download(file_list[[script_id[1]]]$id)
-script <- rawToChar(bytes)
-#eval(parse(text = script))
-############
+table.pop<-ctx$client$tableSchemaService$select(doc.id)
+
+tbl_pop<-as_tibble(table.pop)
+Population = tbl_pop$Population
+tbl_pop %<>% select(-Population) %>% as.matrix
+rownames(tbl_pop) = Population
+
 
 mem_matrix<-ctx %>% 
   select(.ci, .ri, .y)
 
-tbl_pop<-read.csv2(file=script_name, header = TRUE, sep = ",", row.names = 1)
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
 colnames(data_mem)[-1]<-channel_list[[1]]

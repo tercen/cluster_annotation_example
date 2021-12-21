@@ -13,8 +13,12 @@ find.match<- function(cluster_pop,tbl_pop){
     for (y in c(1:length((tbl_pop[i,])))){
       if (tbl_pop[i,y] == 1){
         marker<- paste(colnames(tbl_pop)[y],"+",sep="")
+      } else if(tbl_pop[i,y] == 2){
+        marker<- paste(colnames(tbl_pop)[y],"++",sep="")
       } else if(tbl_pop[i,y] == -1){
         marker<- paste(colnames(tbl_pop)[y],"-",sep="")
+      } else if(tbl_pop[i,y] == -2){
+        marker<- paste(colnames(tbl_pop)[y],"--",sep="")
       } else{
         marker<-""
       }
@@ -65,13 +69,27 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   label<-data_mem[[".ci"]][cluster.nb]
   population<-""
   for (cname in colnames(data_mem)[-1]){
-    #threshold <- median(data_mem[[cname]])
-    threshold <-0
-    if (data_mem[cluster.nb,cname]<threshold){
-      population<-paste(population,cname,"-",sep="")
+    positive.threshold <- ctx$op.value("Positive Threshold")
+    negative.threshold <- ctx$op.value("Negative Threshold")
+    positive.threshold <- 5
+    negative.threshold <- -5
+    
+    baseline <- 0
+    if (data_mem[cluster.nb,cname]<baseline){
+      if (data_mem[cluster.nb,cname]< negative.threshold){
+        population<-paste(population,cname,"--",sep="")
+      }
+      else{
+        population<-paste(population,cname,"-",sep="")
+      }
     }
     else{
-      population<-paste(population,cname,"+",sep="")
+      if (data_mem[cluster.nb,cname]> positive.threshold){
+        population<-paste(population,cname,"++",sep="")
+      }
+      else{
+        population<-paste(population,cname,"+",sep="")
+      }
     }
   }
   res<-cbind(label,population)

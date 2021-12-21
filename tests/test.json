@@ -2,6 +2,7 @@
   "kind": "OperatorUnitTest",
   "name": "test",
   "namespace": "ph0",
+  "inputFileUris": ["table_pop.csv"],
   "inputDataUri": "MEM_table.csv",
   "outputDataUri": ["table1.csv"],
   "columns": ["ds21.cluster_id"],

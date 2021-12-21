@@ -6,10 +6,15 @@
   "urls": ["https://github.com/tercen/cluster_annotation_operator"],
   "properties": [
    {
-    "kind": "StringProperty",
-    "name": "file_name",
-    "defaultValue": "table.csv",
-    "description": "File name of the population annotation."
-    }
+    "kind": "DoubleProperty",
+    "name": "Positive Threshold",
+    "defaultValue": 5,
+    "description": "define the positive threshold between overly express marker"
+  },{
+    "kind": "DoubleProperty",
+    "name": "Negative Threshold",
+    "defaultValue": -5,
+    "description": "define the negative threshold between unexpress marker"
+  }
   ]
 }

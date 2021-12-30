@@ -51,10 +51,10 @@ doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
 
 table.pop<-ctx$client$tableSchemaService$select(doc.id)
 
-tbl_pop<-as_tibble(table.pop)
-Population = tbl_pop$Population
-tbl_pop %<>% select(-Population) %>% as.matrix
-rownames(tbl_pop) = Population
+tbl_pop <- as_tibble(table.pop)
+Population <- tbl_pop[1]
+tbl_pop %<>% select(-colnames(tbl_pop)[1]) %>% as.matrix
+rownames(tbl_pop) <- Population[[1]]
 ###
 
 mem_matrix<-ctx %>% 
@@ -71,8 +71,8 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   for (cname in colnames(data_mem)[-1]){
     positive.threshold <- ctx$op.value("Positive Threshold")
     negative.threshold <- ctx$op.value("Negative Threshold")
-    positive.threshold <- 5
-    negative.threshold <- -5
+    #positive.threshold <- 5
+    #negative.threshold <- -5
     
     baseline <- 0
     if (data_mem[cluster.nb,cname]<baseline){
@@ -96,19 +96,24 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   out.mat<-rbind(out.mat,res)
 }
 
-output<-matrix(, nrow = 0, ncol = 2)
+
+population_col <-rownames(tbl_pop)
+output<-matrix(, nrow = 0, ncol = length(population_col)+1)
+colnames(output)<-c(".ci",population_col)
+
 for (row.nb in c(1:length(out.mat[,1]))){
   result<-find.match(out.mat[row.nb,],tbl_pop)
-  for (res.pop in result){
-    new.row<-cbind(as.numeric(row.nb),res.pop)
-    output<-rbind(output,new.row)
+  .ci<-as.numeric(row.nb)
+  for (ref.pop in population_col){
+    if(ref.pop %in% result){
+      .ci<-cbind(.ci,"TRUE")
+    } else{
+      .ci<-cbind(.ci,"FALSE")
+    }
   }
-  if(is.null(result)){
-    new.row<-cbind(as.numeric(row.nb),"Unknown")
-    output<-rbind(output,new.row)
-  }
+  output<-rbind(output,.ci)
 }
-colnames(output)<-c(".ci","population")
+
 
 output%>%
   as_tibble()%>% 

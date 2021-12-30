@@ -8,7 +8,7 @@
   "columns": ["ds21.cluster_id"],
   "rows": ["channel"],
   "colors": [],
-  "labels": [],
+  "labels": ["documentId"],
   "yAxis": "2.0.mem",
   "xAxis": ""
 }

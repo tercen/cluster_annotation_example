@@ -5,7 +5,7 @@
   "inputFileUris": ["MEM_table.csv"],
   "inputDataUri": "input.csv",
   "outputDataUri": ["table1.csv"],
-  "columns": ["ph0.cluster_id"],
+  "columns": ["ds21.cluster_id"],
   "rows": ["channel"],
   "colors": [],
   "labels": ["documentId"],

@@ -8,13 +8,13 @@
    {
     "kind": "DoubleProperty",
     "name": "Positive Threshold",
-    "defaultValue": 5,
-    "description": "define the positive threshold between overly express marker"
+    "defaultValue": 0,
+    "description": "define the positive threshold for the express marker"
   },{
     "kind": "DoubleProperty",
-    "name": "Negative Threshold",
-    "defaultValue": -5,
-    "description": "define the negative threshold between unexpress marker"
+    "name": "Bright Threshold",
+    "defaultValue": 5,
+    "description": "define the Bright threshold for the express marker"
   }
   ]
 }

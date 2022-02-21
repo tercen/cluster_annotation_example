@@ -43,21 +43,14 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   population<-""
   for (cname in colnames(data_mem)[-1]){
   positive.threshold <- ctx$op.value("Positive Threshold")
-  negative.threshold <- ctx$op.value("Negative Threshold")
-  positive.threshold <- 5
-  negative.threshold <- -5
-  
-  baseline <- 0
-  if (data_mem[cluster.nb,cname]<baseline){
-    if (data_mem[cluster.nb,cname]< negative.threshold){
-    population<-paste(population,cname,"--",sep="")
-    }
-    else{
-      population<-paste(population,cname,"-",sep="")
-    }
-  }
-  else{
-    if (data_mem[cluster.nb,cname]> positive.threshold){
+  bright.threshold <- ctx$op.value("Bright Threshold")
+  positive.threshold <- 0
+  bright.threshold <- 5
+ 
+  if (data_mem[cluster.nb,cname]< positive.threshold){
+    population<-paste(population,cname,"-",sep="")
+  }else{
+    if (data_mem[cluster.nb,cname]> bright.threshold){
       population<-paste(population,cname,"++",sep="")
     }
     else{
@@ -85,8 +78,6 @@ find.match<- function(cluster_pop,tbl_pop){
         marker<- paste(colnames(tbl_pop)[y],"++",sep="")
       } else if(tbl_pop[i,y] == -1){
         marker<- paste(colnames(tbl_pop)[y],"-",sep="")
-      } else if(tbl_pop[i,y] == -2){
-        marker<- paste(colnames(tbl_pop)[y],"--",sep="")
       } else{
         marker<-""
       }
@@ -127,8 +118,23 @@ for (row.nb in c(1:length(out.mat[,1]))){
   output<-rbind(output,.ci)
 }
 
+output2<-matrix(, nrow = 0, ncol = 2)
+for (row.nb in c(1:length(out.mat[,1]))){
+  result<-find.match(out.mat[row.nb,],tbl_pop)
+  for (res.pop in result){
+    new.row<-cbind(as.numeric(row.nb),res.pop)
+    output2<-rbind(output2,new.row)
+  }
+  if(is.null(result)){
+    new.row<-cbind(as.numeric(row.nb),"Unknown")
+    output2<-rbind(output2,new.row)
+  }
+}
+colnames(output2)<-c(".ci","population")
 
-output%>%
+final.output<-merge(output, output2, by = ".ci")
+
+final.output%>%
   as_tibble()%>% 
   mutate(.ci = as.integer(as.integer(.ci)-1)) %>%
   ctx$addNamespace() %>%

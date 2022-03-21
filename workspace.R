@@ -133,9 +133,11 @@ find.match<- function(cluster_pop,tbl_pop){
       if (tbl_pop[i,y] == 1){
         marker<- paste(colnames(tbl_pop)[y],"+",sep="")
       } else if(tbl_pop[i,y] == 2){
-        marker<- paste(colnames(tbl_pop)[y],"++",sep="")
+        marker<- paste(colnames(tbl_pop)[y],"hi",sep="")
       } else if(tbl_pop[i,y] == -1){
         marker<- paste(colnames(tbl_pop)[y],"-",sep="")
+      } else if(tbl_pop[i,y] == 0.5){
+        marker<- paste(colnames(tbl_pop)[y],"lo",sep="")
       } else{
         marker<-""
       }

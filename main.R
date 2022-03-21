@@ -8,7 +8,7 @@ library(stringr)
 change.format <- function(table){
   pop<-table["popupation"]
   
-  mark<-table["markers"]
+  #marker<-table["markers"]
   
   out.mat<-matrix(, nrow = 1, ncol =0)
   
@@ -20,7 +20,7 @@ change.format <- function(table){
     marker<-tbl.row[[2]]
     marker<-str_replace(marker,"\\+\\+","hi")
     
-    list<-unlist(strsplit(marker, "(?<=[\\+|\\-|lo|hi])", perl=TRUE))
+    list<-unlist(strsplit(marker, "(?<=[\\+|\\-]|lo|hi)", perl=TRUE))
     out.tmp<-rbind(list)
     out.tmp<-cbind(pop,out.tmp)
 

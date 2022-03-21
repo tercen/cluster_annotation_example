@@ -31,7 +31,7 @@ change.format <- function(table){
     marker<-tbl.row[[2]]
     marker<-str_replace(marker,"\\+\\+","hi")
     
-    list<-unlist(strsplit(marker, "(?<=[\\+|\\-|lo|hi])", perl=TRUE))
+    list<-unlist(strsplit(marker, "(?<=[\\+|\\-]|lo|hi)", perl=TRUE))
     out.tmp<-rbind(list)
     out.tmp<-cbind(pop,out.tmp)
     #rownames(out.tmp)<- pop

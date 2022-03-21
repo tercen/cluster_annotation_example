@@ -1,17 +1,61 @@
 library(tercen)
 library(dplyr)
 library(tidyr)
+library(stringr)
 #library(flowCore)
 #library(FlowSOM)
 #library(MEM)
 #library(tictoc)
 
-options("tercen.workflowId" = "f119a84e79d66805c986d2fe4c0a1164")
+#options("tercen.workflowId" = "f119a84e79d66805c986d2fe4c0a1164")
 options("tercen.workflowId" = "9af47f50c3160717a5378977da00e254")
 
 #options("tercen.stepId"     = "3bbf5208-96b4-424c-9813-186d144e6624")
 options("tercen.stepId"     = "5ae79b70-5195-4578-8439-eaf21b9a250b")
 #options("tercen.stepId"     = "7df2d0f2-63fc-4230-9fa8-53ee2ebaed8d")
+
+### FUNCTION table
+
+change.format <- function(table){
+  pop<-table["popupation"]
+  
+  mark<-table["markers"]
+  
+  out.mat<-matrix(, nrow = 1, ncol =0)
+  
+  for (rownb in c(1:nrow(table))){
+    #print(table[rownb,])
+    tbl.row<-table[rownb,]
+    
+    pop<-tbl.row[[1]]
+    marker<-tbl.row[[2]]
+    
+    list<-unlist(strsplit(marker, "(?<=[\\+|\\-])", perl=TRUE))
+    out.tmp<-rbind(list)
+    out.tmp<-cbind(pop,out.tmp)
+    #rownames(out.tmp)<- pop
+    clean.list<-gsub('[\\+|\\-]', '', list)
+    colnames(out.tmp)[-1]<- clean.list
+    
+    out.tmp[grep(out.tmp,pattern = "\\+")]<-1
+    out.tmp[grep(out.tmp,pattern = "\\-")]<--1
+    
+    dat2 <- as.matrix(out.tmp,keep.rownames=FALSE)
+    
+    dat1 <- as.matrix(out.mat)
+    #Assign to an object
+    out.mat <- merge(dat1, dat2, all = TRUE)
+    #out.mat
+    #Replace NA's with zeros
+    out.mat[is.na(out.mat)] <- 0
+    
+  }
+  return( out.mat)
+}
+
+
+
+
 
 ctx <- tercenCtx()
 
@@ -24,9 +68,17 @@ doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
 table.pop<-ctx$client$tableSchemaService$select(doc.id)
 
 tbl_pop<-as_tibble(table.pop)
+tbl_pop <- as.matrix(tbl_pop)
+tbl_pop<-change.format(tbl_pop)
 Population = tbl_pop[1]
-tbl_pop %<>% select(-colnames(tbl_pop)[1]) %>% as.matrix
-rownames(tbl_pop) = Population[[1]]
+tbl_pop <- tbl_pop[,-1]
+rownames(tbl_pop) <- Population[[1]]
+
+#previous format
+#tbl_pop<-as_tibble(table.pop)
+#Population = tbl_pop[1]
+#tbl_pop %<>% select(-colnames(tbl_pop)[1]) %>% as.matrix
+#rownames(tbl_pop) = Population[[1]]
 
 
 mem_matrix<-ctx %>% 

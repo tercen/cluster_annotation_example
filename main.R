@@ -1,12 +1,51 @@
 library(tercen)
 library(dplyr)
 library(tidyr)
+library(stringr)
 
+### FUNCTION table
+
+change.format <- function(table){
+  pop<-table["popupation"]
+  
+  mark<-table["markers"]
+  
+  out.mat<-matrix(, nrow = 1, ncol =0)
+  
+  for (rownb in c(1:nrow(table))){
+    #print(table[rownb,])
+    tbl.row<-table[rownb,]
+    
+    pop<-tbl.row[[1]]
+    marker<-tbl.row[[2]]
+    
+    list<-unlist(strsplit(marker, "(?<=[\\+|\\-])", perl=TRUE))
+    out.tmp<-rbind(list)
+    out.tmp<-cbind(pop,out.tmp)
+    #rownames(out.tmp)<- pop
+    clean.list<-gsub('[\\+|\\-]', '', list)
+    colnames(out.tmp)[-1]<- clean.list
+    
+    out.tmp[grep(out.tmp,pattern = "\\+")]<-1
+    out.tmp[grep(out.tmp,pattern = "\\-")]<--1
+    
+    dat2 <- as.matrix(out.tmp,keep.rownames=FALSE)
+    
+    dat1 <- as.matrix(out.mat)
+    #Assign to an object
+    out.mat <- merge(dat1, dat2, all = TRUE)
+    #out.mat
+    #Replace NA's with zeros
+    out.mat[is.na(out.mat)] <- 0
+    
+  }
+  return( out.mat)
+}
+####
 
 ctx <- tercenCtx()
 
 ### Extract the population table with the documentId
-#doc.id<-ctx$select("js1.documentId")[[1]][1]
 
 doc.id.tmp<-as_tibble(ctx$select())
 doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
@@ -14,10 +53,11 @@ doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
 table.pop<-ctx$client$tableSchemaService$select(doc.id)
 
 tbl_pop<-as_tibble(table.pop)
+tbl_pop <- as.matrix(tbl_pop)
+tbl_pop<-change.format(tbl_pop)
 Population = tbl_pop[1]
-tbl_pop %<>% select(-colnames(tbl_pop)[1]) %>% as.matrix
-rownames(tbl_pop) = Population[[1]]
-
+tbl_pop <- tbl_pop[,-1]
+rownames(tbl_pop) <- Population[[1]]
 
 mem_matrix<-ctx %>% 
   select(.ci, .ri, .y)
@@ -25,7 +65,6 @@ mem_matrix<-ctx %>%
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
 colnames(data_mem)[-1]<-channel_list[[1]]
-#colnames(data_mem)[-1]<-c("HLADR","pERK1","CD3","Perf","CD38","IFNg","CD4","CD8")
 
 out.mat<-matrix(, nrow = 0, ncol = 2)
 for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
@@ -34,7 +73,8 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   for (cname in colnames(data_mem)[-1]){
     positive.threshold <- ctx$op.value("Positive Threshold")
     bright.threshold <- ctx$op.value("Bright Threshold")
-    
+    positive.threshold <- 0
+    bright.threshold <- 5
     
     if (data_mem[cluster.nb,cname]< positive.threshold){
       population<-paste(population,cname,"-",sep="")
@@ -128,4 +168,3 @@ final.output%>%
   mutate(.ci = as.integer(as.integer(.ci)-1)) %>%
   ctx$addNamespace() %>%
   ctx$save()
-

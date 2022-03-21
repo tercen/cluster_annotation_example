@@ -18,16 +18,19 @@ change.format <- function(table){
     
     pop<-tbl.row[[1]]
     marker<-tbl.row[[2]]
+    marker<-str_replace(marker,"\\+\\+","hi")
     
-    list<-unlist(strsplit(marker, "(?<=[\\+|\\-])", perl=TRUE))
+    list<-unlist(strsplit(marker, "(?<=[\\+|\\-|\\lo|\\hi])", perl=TRUE))
     out.tmp<-rbind(list)
     out.tmp<-cbind(pop,out.tmp)
-    #rownames(out.tmp)<- pop
+
     clean.list<-gsub('[\\+|\\-]', '', list)
     colnames(out.tmp)[-1]<- clean.list
     
     out.tmp[grep(out.tmp,pattern = "\\+")]<-1
     out.tmp[grep(out.tmp,pattern = "\\-")]<--1
+    out.tmp[grep(out.tmp,pattern = "\\lo")]<-0.5
+    out.tmp[grep(out.tmp,pattern = "\\hi")]<-2
     
     dat2 <- as.matrix(out.tmp,keep.rownames=FALSE)
     
@@ -41,12 +44,12 @@ change.format <- function(table){
   }
   return( out.mat)
 }
-####
+
+###
 
 ctx <- tercenCtx()
 
 ### Extract the population table with the documentId
-
 doc.id.tmp<-as_tibble(ctx$select())
 doc.id<-doc.id.tmp[[grep("documentId" , colnames(doc.id.tmp))]][1]
 
@@ -72,17 +75,17 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   population<-""
   for (cname in colnames(data_mem)[-1]){
     positive.threshold <- ctx$op.value("Positive Threshold")
-    bright.threshold <- ctx$op.value("Bright Threshold")
-    positive.threshold <- 0
-    bright.threshold <- 5
+    low.threshold <- ctx$op.value("Low Threshold")
+    high.threshold <- ctx$op.value("High Threshold")
     
     if (data_mem[cluster.nb,cname]< positive.threshold){
       population<-paste(population,cname,"-",sep="")
     }else{
       if (data_mem[cluster.nb,cname]> bright.threshold){
-        population<-paste(population,cname,"++",sep="")
-      }
-      else{
+        population<-paste(population,cname,"hi",sep="")
+      } else if (data_mem[cluster.nb,cname]< low.threshold){
+        population<-paste(population,cname,"lo",sep="")
+      } else{
         population<-paste(population,cname,"+",sep="")
       }
     }
@@ -168,3 +171,4 @@ final.output%>%
   mutate(.ci = as.integer(as.integer(.ci)-1)) %>%
   ctx$addNamespace() %>%
   ctx$save()
+

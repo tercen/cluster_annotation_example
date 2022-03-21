@@ -169,6 +169,20 @@
       "Repository": "RSPM",
       "Hash": "599df23c40a4fce9c7b4764f28c37857"
     },
+    "stringi": {
+      "Package": "stringi",
+      "Version": "1.7.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "bba431031d30789535745a9627ac9271"
+    },
+    "stringr": {
+      "Package": "stringr",
+      "Version": "1.4.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "0759e6b6c0957edb1311028a49a35e76"
+    },
     "sys": {
       "Package": "sys",
       "Version": "3.4",

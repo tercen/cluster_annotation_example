@@ -6,14 +6,9 @@ library(stringr)
 ### FUNCTION table
 
 change.format <- function(table){
-  pop<-table["popupation"]
-  
-  #marker<-table["markers"]
-  
   out.mat<-matrix(, nrow = 1, ncol =0)
   
   for (rownb in c(1:nrow(table))){
-    #print(table[rownb,])
     tbl.row<-table[rownb,]
     
     pop<-tbl.row[[1]]
@@ -23,14 +18,18 @@ change.format <- function(table){
     list<-unlist(strsplit(marker, "(?<=[\\+|\\-]|lo|hi)", perl=TRUE))
     out.tmp<-rbind(list)
     out.tmp<-cbind(pop,out.tmp)
-
-    clean.list<-gsub('[\\+|\\-]', '', list)
+    #rownames(out.tmp)<- pop
+    clean.list<-gsub('[\\+|\\-]|lo|hi', '', list)
     colnames(out.tmp)[-1]<- clean.list
+    
+    save.pop<-out.tmp[,1]
     
     out.tmp[grep(out.tmp,pattern = "\\+")]<-1
     out.tmp[grep(out.tmp,pattern = "\\-")]<--1
     out.tmp[grep(out.tmp,pattern = "lo")]<-0.5
     out.tmp[grep(out.tmp,pattern = "hi")]<-2
+    
+    out.tmp[,1]<-save.pop
     
     dat2 <- as.matrix(out.tmp,keep.rownames=FALSE)
     

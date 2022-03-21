@@ -17,9 +17,8 @@ options("tercen.stepId"     = "5ae79b70-5195-4578-8439-eaf21b9a250b")
 ### FUNCTION table
 
 change.format <- function(table){
-  pop<-table["popupation"]
-  
-  mark<-table["markers"]
+  #pop<-table[,1]
+  #mark<-table[,2]
   
   out.mat<-matrix(, nrow = 1, ncol =0)
   
@@ -35,13 +34,17 @@ change.format <- function(table){
     out.tmp<-rbind(list)
     out.tmp<-cbind(pop,out.tmp)
     #rownames(out.tmp)<- pop
-    clean.list<-gsub('[\\+|\\-]', '', list)
+    clean.list<-gsub('[\\+|\\-]|lo|hi', '', list)
     colnames(out.tmp)[-1]<- clean.list
+    
+    save.pop<-out.tmp[,1]
     
     out.tmp[grep(out.tmp,pattern = "\\+")]<-1
     out.tmp[grep(out.tmp,pattern = "\\-")]<--1
     out.tmp[grep(out.tmp,pattern = "lo")]<-0.5
     out.tmp[grep(out.tmp,pattern = "hi")]<-2
+    
+    out.tmp[,1]<-save.pop
     
     dat2 <- as.matrix(out.tmp,keep.rownames=FALSE)
     

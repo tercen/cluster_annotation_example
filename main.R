@@ -20,7 +20,7 @@ change.format <- function(table){
     marker<-tbl.row[[2]]
     marker<-str_replace(marker,"\\+\\+","hi")
     
-    list<-unlist(strsplit(marker, "(?<=[\\+|\\-|\\lo|\\hi])", perl=TRUE))
+    list<-unlist(strsplit(marker, "(?<=[\\+|\\-|lo|hi])", perl=TRUE))
     out.tmp<-rbind(list)
     out.tmp<-cbind(pop,out.tmp)
 
@@ -29,8 +29,8 @@ change.format <- function(table){
     
     out.tmp[grep(out.tmp,pattern = "\\+")]<-1
     out.tmp[grep(out.tmp,pattern = "\\-")]<--1
-    out.tmp[grep(out.tmp,pattern = "\\lo")]<-0.5
-    out.tmp[grep(out.tmp,pattern = "\\hi")]<-2
+    out.tmp[grep(out.tmp,pattern = "lo")]<-0.5
+    out.tmp[grep(out.tmp,pattern = "hi")]<-2
     
     dat2 <- as.matrix(out.tmp,keep.rownames=FALSE)
     

@@ -107,7 +107,7 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   if (data_mem[cluster.nb,cname]< positive.threshold){
     population<-paste(population,cname,"-",sep="")
   }else{
-    if (data_mem[cluster.nb,cname]> bright.threshold){
+    if (data_mem[cluster.nb,cname]> high.threshold){
       population<-paste(population,cname,"hi",sep="")
     } else if (data_mem[cluster.nb,cname]< low.threshold){
       population<-paste(population,cname,"lo",sep="")

@@ -66,6 +66,7 @@ mem_matrix<-ctx %>%
 
 channel_list<-ctx$rselect()
 data_mem<-pivot_wider(mem_matrix,names_from = .ri, values_from = .y)
+channel_list[[1]]<-str_replace(channel_list[[1]],"HLA-DR","HLADR")
 colnames(data_mem)[-1]<-channel_list[[1]]
 
 out.mat<-matrix(, nrow = 0, ncol = 2)

@@ -2,6 +2,7 @@ library(tercen)
 library(dplyr)
 library(tidyr)
 library(stringr)
+library("scales")
 #library(flowCore)
 #library(FlowSOM)
 #library(MEM)
@@ -96,15 +97,21 @@ channel_list[[1]]<-str_replace(channel_list[[1]],"HLA-DR","HLADR")
 colnames(data_mem)[-1]<-channel_list[[1]]
 #colnames(data_mem)[-1]<-c("HLADR","pERK1","CD3","Perf","CD38","IFNg","CD4","CD8")
 
+
+range <- function(x){(x-min(x))/(max(x)-min(x))}
+data_mem[-1]<-range(data_mem[-1])
+
+
+
 out.mat<-matrix(, nrow = 0, ncol = 2)
 for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   label<-data_mem[[".ci"]][cluster.nb]
   population<-""
   for (cname in colnames(data_mem)[-1]){
-  positive.threshold <- ctx$op.value("Positive Threshold")
+  positive.threshold <- as.double(ctx$op.value("Positive Threshold"))
   low.threshold <- ctx$op.value("Low Threshold")
   high.threshold <- ctx$op.value("High Threshold")
-  positive.threshold <- 0
+  positive.threshold <- 1
   low.threshold <- 2
   high.threshold <- 5
  

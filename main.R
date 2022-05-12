@@ -2,7 +2,7 @@ library(tercen)
 library(dplyr)
 library(tidyr)
 library(stringr)
-library(scales)
+
 
 ### FUNCTION table
 

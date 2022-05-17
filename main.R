@@ -80,9 +80,9 @@ for (cluster.nb in c(1:length(data_mem[[".ci"]]))){
   label<-data_mem[[".ci"]][cluster.nb]
   population<-""
   for (cname in colnames(data_mem)[-1]){
-    positive.threshold <- ctx$op.value("Positive Threshold")
-    low.threshold <- ctx$op.value("Low Threshold")
-    high.threshold <- ctx$op.value("High Threshold")
+    positive.threshold <- as.double(ctx$op.value("Positive Threshold"))
+    low.threshold <- as.double(ctx$op.value("Low Threshold"))
+    high.threshold <- as.double(ctx$op.value("High Threshold"))
     
     if (data_mem[cluster.nb,cname]< positive.threshold){
       population<-paste(population,cname,"-",sep="")
